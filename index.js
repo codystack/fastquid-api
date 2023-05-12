@@ -41,11 +41,14 @@ db.mongoose
     process.exit()
   })
 // simple route
-app.get('/api', (req, res) => {
+app.get('/', (req, res) => {
   res.json({
     message: 'FASTQUID REST API v' + process.env.npm_package_version,
   })
 })
+
+// app.use("/", EmployeeItemRoute);
+
 // Socket Connection
 io.on('connection', (socket) => {
   console.log(`${socket.id} user connected`)
@@ -67,7 +70,7 @@ require('./app/routes/media.routes')(app)
 require('./app/routes/support.routes')(app)
 require('./app/routes/notification.routes')(app)
 // Not for production
-require('./app/routes/sms.routes')(app)
+// require('./app/routes/sms.routes')(app)
 
 app.use(middleware.notFound)
 app.use(middleware.errorHandler)
