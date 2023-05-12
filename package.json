@@ -9,7 +9,8 @@
     "format:check": "prettier --check .",
     "format:write": "prettier --write .",
     "lint:check": "eslint .",
-    "lint:fix": "eslint --fix ."
+    "lint:fix": "eslint --fix .",
+    "vercel-build": "echo Hello building"
   },
   "repository": {
     "type": "git",
