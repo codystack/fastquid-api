@@ -41,7 +41,7 @@ db.mongoose
     process.exit()
   })
 // simple route
-app.get('/', (req, res) => {
+app.get('/api', (req, res) => {
   res.json({
     message: 'FASTQUID REST API v' + process.env.npm_package_version,
   })
