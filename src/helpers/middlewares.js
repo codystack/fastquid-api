@@ -62,7 +62,7 @@ function verifyAdmin(req, res, next) {
 
 module.exports = {
   notFound,
-  errorHandler,
+  errorHandler, 
   verifyCookie,
   verifyAdmin,
 }

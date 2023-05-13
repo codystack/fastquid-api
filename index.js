@@ -6,9 +6,12 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan')
 const helmet = require('helmet')
 const cors = require('cors')
-const db = require('./app/db')
-const changeSchemeHandler = require('./app/controllers/changeScheme.handler')
-const middleware = require('./app/helpers/middlewares')
+const db = require('./src/db')
+const changeSchemeHandler = require('./src/controllers/changeScheme.handler')
+const middleware = require('./src/helpers/middlewares')
+const fs = require('fs');
+
+// const  authRoute = require("./app/routes/auth.routes.js");
 
 
 //DECLARE
@@ -47,7 +50,15 @@ app.get('/', (req, res) => {
   })
 })
 
-// app.use("/", EmployeeItemRoute);
+
+/* backslash for windows, in unix it would be forward slash */
+// const routes_directory = require('path').resolve(__dirname) + '\\app\\'; 
+
+// fs.readdirSync('./app/routes').map((file) => app.use("/api", require("./app/routes/"+file)));
+ 
+ 
+// app.use("/api", authRoute);
+// app.use('/api/auth', authRoute)
 
 // Socket Connection
 io.on('connection', (socket) => {
@@ -61,14 +72,16 @@ io.on('connection', (socket) => {
 // CHANGE STREAMS
 changeSchemeHandler(db, io)
 
-require('./app/routes/admin.routes')(app)
-require('./app/routes/auth.routes')(app)
-require('./app/routes/bank.routes')(app)
-require('./app/routes/loan.routes')(app)
-require('./app/routes/transaction.routes')(app)
-require('./app/routes/media.routes')(app)
-require('./app/routes/support.routes')(app)
-require('./app/routes/notification.routes')(app)
+// app.use('/api/auth', authRoute)
+
+require('./src/routes/admin.routes')(app)
+require('./src/routes/auth.routes')(app)
+require('./src/routes/bank.routes')(app)
+require('./src/routes/loan.routes')(app)
+require('./src/routes/transaction.routes')(app)
+require('./src/routes/media.routes')(app)
+require('./src/routes/support.routes')(app)
+require('./src/routes/notification.routes')(app)
 // Not for production
 // require('./app/routes/sms.routes')(app)
 
