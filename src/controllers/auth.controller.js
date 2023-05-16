@@ -350,6 +350,13 @@ exports.sendOtp = async (req, res) => {
     }).save()
 
     console.info('Sent OTP: ', otp)
+    if (req.body?.companyEmailAddress) {
+      await sendSms(otp.otp, req.body.companyEmailAddress)
+      res.send({
+        status: true,
+        message: `'OTP sent to ${req.body.companyEmailAddress}.`,
+      })
+    }
     await sendSms(otp.otp, req.body.emailAddress)
 
     //send OTP HERE
