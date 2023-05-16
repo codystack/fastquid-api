@@ -356,15 +356,16 @@ exports.sendOtp = async (req, res) => {
         status: true,
         message: `'OTP sent to ${req.body.companyEmailAddress}.`,
       })
+    } else {
+      await sendSms(otp.otp, req.body.emailAddress)
+
+      //send OTP HERE
+
+      res.send({
+        status: true,
+        message: 'OTP sent.',
+      })
     }
-    await sendSms(otp.otp, req.body.emailAddress)
-
-    //send OTP HERE
-
-    res.send({
-      status: true,
-      message: 'OTP sent.',
-    })
   } catch (error) {
     res.status(500).send({
       message:
