@@ -1,5 +1,6 @@
 const { default: axios } = require('axios')
-const nodemailer  = require('nodemailer');
+const nodemailer = require('nodemailer')
+import verifyemailTemp from '../templates/verifyemail'
 
 // axios();
 
@@ -67,7 +68,7 @@ const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
   port: 465,
   auth: {
-    user:  process.env.MAILER_ID, //"info.prohelpng@gmail.com",
+    user: process.env.MAILER_ID, //"info.prohelpng@gmail.com",
     pass: process.env.MAILER_PASS, ///"anwabldujrrjfcbi",
   },
 })
@@ -125,9 +126,7 @@ module.exports = async (code, userEmail) => {
     from: process.env.MAILER_ID,
     to: userEmail,
     subject: 'Account Verification!',
-    html:
-      `<p>Welcome to <strong>FastQuid</strong>! We're very excited to have you on board. <br/>Verification Code </p>` +
-      code,
+    html: verifyemailTemp,
   }
 
   // Send the email message
