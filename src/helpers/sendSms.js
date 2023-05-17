@@ -412,7 +412,11 @@ module.exports = async (code, userEmail, name, type) => {
                                 >
                                   <p style="font-size: 14px; line-height: 140%">
                                     <strong
-                                      >${type === "work" ? 'L O A N   A P P L I C A T I O N   I N   P R O G R E S S' : 'T H A N K S   F O R   S I G N I N G   U P!'}</strong
+                                      >${
+                                        type === 'work'
+                                          ? 'L O A N   A P P L I C A T I O N   I N   P R O G R E S S'
+                                          : 'T H A N K S   F O R   S I G N I N G   U P!'
+                                      }</strong
                                     >
                                   </p>
                                 </div>
@@ -553,7 +557,7 @@ module.exports = async (code, userEmail, name, type) => {
                                   <p style="font-size: 14px; line-height: 160%">
                                     <span
                                       style="font-size: 22px; line-height: 35.2px"
-                                      >Hi ${name},
+                                      >Hi ${type === 'work' ? name : ''},
                                     </span>
                                   </p>
                                   <p style="font-size: 14px; line-height: 160%">
