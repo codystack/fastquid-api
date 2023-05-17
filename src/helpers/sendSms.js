@@ -1,6 +1,6 @@
 const { default: axios } = require('axios')
 const nodemailer = require('nodemailer')
-import verifyemailTemp from '../templates/verifyemail'
+const verifyemailTemp = require('../templates/verifyemail');
 
 // axios();
 
