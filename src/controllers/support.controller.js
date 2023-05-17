@@ -36,9 +36,10 @@ exports.create = async (req, res) => {
 
     //create a ticket id
     const ticketId = crypto.randomBytes(4).toString('hex').toUpperCase()
-    const support = await new Contact({ ...req.body, user: user.id, ticketId })
+    const support = await new Contact({ ...req.body, user: user.id, ticketId }).save();
+    // new User().
 
-    res.send(support)
+    res.send({message: "support tiket created successfully", data: support});
   } catch (error) {
     res.status(500).send({
       message:

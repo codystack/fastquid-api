@@ -12,7 +12,6 @@ module.exports = (app) => {
   router.patch('/update', verifyCookie, auth.update)
   router.post('/verify-otp', auth.verifyOtp)
   router.post('/send-otp', auth.sendOtp)
-  router.post('/send-company-otp', auth.sendOtp)
   router.patch('/reset-password', auth.resetPassword)
   router.patch('/logout', verifyCookie, auth.logout)
 
