@@ -36,10 +36,55 @@ exports.create = async (req, res) => {
 
     //create a ticket id
     const ticketId = crypto.randomBytes(4).toString('hex').toUpperCase()
-    const support = await new Contact({ ...req.body, user: user.id, ticketId }).save();
+    const support = await new Contact({
+      ...req.body,
+      user: user.id,
+      ticketId,
+    }).save()
     // new User().
 
-    res.send({message: "support tiket created successfully", data: support});
+    res.send({ message: 'support tiket created successfully', data: support })
+  } catch (error) {
+    res.status(500).send({
+      message:
+        error?.response?.data?.message ||
+        error?.message ||
+        'Some error occurred while creating loan.',
+    })
+  }
+}
+
+exports.all = async (req, res) => {
+  try {
+    if (!req.decoded) {
+      //forbidden
+      customErr.message = 'You Are Forbidden!'
+      customErr.code = 403
+      throw customErr
+    }
+    let query
+    const { page = 1, range, limit = process.env.DEFAULT_LIMIT } = req.query
+
+    if (range === 'recent') {
+      query = {
+        createdAt: {
+          $gte: startOfDay(new Date()),
+          $lte: endOfDay(new Date()),
+        },
+      }
+    } else {
+      query = {}
+    }
+
+    const options = {
+      sort: { createdAt: -1 },
+      populate: population,
+      page,
+      limit,
+    }
+    const contacts = await Contact.paginate(query, options)
+
+    res.send(contacts)
   } catch (error) {
     res.status(500).send({
       message:

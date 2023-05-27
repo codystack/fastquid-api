@@ -4,6 +4,7 @@ const admin = require('../controllers/admin.controller')
 const loan = require('../controllers/loan.controller')
 const transaction = require('../controllers/transaction.controller')
 const setting = require('../controllers/setting.controller')
+const auth = require('../controllers/auth.controller')
 
 module.exports = (app) => {
   const router = require('express').Router()
@@ -29,8 +30,10 @@ module.exports = (app) => {
   )
 
   router.patch('/loan/update', [verifyCookie, verifyAdmin], loan.update)
+  router.patch('/users/update', [verifyCookie, verifyAdmin], admin.updateUser)
   router.get('/loan/all', [verifyCookie, verifyAdmin], loan.all)
   router.get('/transaction/all', [verifyCookie, verifyAdmin], transaction.all)
+  router.get('/users/all', [verifyCookie, verifyAdmin], auth.all)
   router.post('/setting/create', setting.create)
 
   app.use('/api/admin', router)

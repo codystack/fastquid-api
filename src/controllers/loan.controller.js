@@ -84,10 +84,26 @@ exports.create = async (req, res) => {
       user.markModified('loan')
       user.save()
     }
-    await LoanRequest.findOneAndUpdate(
+    const lreq = await LoanRequest.findOneAndUpdate(
       { user: user.id },
       { amountIssued: req.body.amountBorrowed }
     )
+
+    console.log("Loan Create PAYLOAD >> ", payload);
+    //Also save to transaction here
+    await new Transaction({
+      user: user.id,
+      type: "loan",
+      domain: "",
+      status: "pending",
+      reference: "ref",
+      amount: payload.amountBorrowed,
+      message: 'Debt consolidation',
+      gateway_response: 'Debt consolidation',
+      channel: "loan",
+      currency: "NGN",
+      ip_address: "",
+    }).save()
 
     const currentLoan = await Loan.findOne({ _id: loan._id }).populate(
       population
@@ -319,6 +335,7 @@ exports.update = async (req, res) => {
       throw customErr
     }
 
+    console.log("CHECK1");
     //Check admin here
     const admin = await Admin.findOne({ emailAddress: req.decoded.userId })
 
@@ -327,6 +344,8 @@ exports.update = async (req, res) => {
       customErr.code = 400
       throw customErr
     }
+
+    console.log("CHECK2");
 
     if (
       admin.privilege.role !== 'developer' &&
@@ -337,6 +356,8 @@ exports.update = async (req, res) => {
       customErr.code = 403
       throw customErr
     }
+
+    console.log("CHECK3");
 
     const { action } = req.query
     const { user } = req.body
@@ -349,6 +370,8 @@ exports.update = async (req, res) => {
       customErr.code = 400
       throw customErr
     }
+
+    console.log("CHECK4");
 
     let amount = userAccount.loan.amountBorrowed
     if (action === 'grant-loan') {

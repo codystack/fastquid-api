@@ -74,56 +74,8 @@ const transporter = nodemailer.createTransport({
 })
 
 module.exports = async (code, userEmail, name, type) => {
-  // var data = {
-  //   api_key: 'TLY2OAr9Rb0MZlNAsjZymMl9t5mS7ZvCDfeg7W9loRcSYz8xwBlJlXRpawf23g',
-  //   message_type: 'NUMERIC',
-  //   to: '07040277958',
-  //   from: 'FastQuid',
-  //   channel: 'dnd',
-  //   pin_attempts: 10,
-  //   pin_time_to_live: 5,
-  //   pin_length: 4,
-  //   pin_placeholder: `<${code}>`,
-  //   message_text: `Your pin is ${code}`,
-  //   pin_type: 'NUMERIC',
-  // }
-  // var options = {
-  //   method: 'POST',
-  //   url: 'https://api.ng.termii.com/api/sms/otp/send',
-  //   headers: {
-  //     'Content-Type': ['application/json', 'application/json'],
-  //   },
-  //   body: JSON.stringify(data),
-  // }
-  // console.log(data)
-
-  // return request(options, function (error, response) {
-  //   if (error) throw new Error(error)
-  //   console.log(response.body)
-  // })
-  // const instance = axios.create({
-  //   baseURL: 'https://api.ng.termii.com/api',
-  //   timeout: 10000,
-  //   // headers: { Authorization: 'Bearer ' + process.env.TERMII_API_KEY },
-  // })
-
-  // let message, subject
-
-  // var mail = {
-  //   body: {
-  //     name: 'Dummy user',
-  //     intro:
-  //       message ||
-  //       "Welcome to FastQuid! We're very excited to have you on board \n" +
-  //         verificationCode,
-  //     outro: 'Need our help? Contact our customer support',
-  //   },
-  // }
-
-  // var emailBody = MailGenerator.generate(mail)
-
   let msg = {
-    from: 'info.prohelpng@gmail.com', //process.env.MAILER_ID,
+    from: process.env.MAILER_ID, //'info.prohelpng@gmail.com', //process.env.MAILER_ID,
     to: userEmail,
     subject:
       type === 'work' ? 'Work Email Verification' : 'Account Verification!',
@@ -1231,7 +1183,7 @@ module.exports = async (code, userEmail, name, type) => {
   // Send the email message
   //   const info = await transporter.sendMail(msg);
   //   console.log(`Email sent: ${info.messageId}`);
-  return transporter.sendMail(msg)
+  return transporter.sendMail(msg);
   // .then((res) => {
   // console.log(`EMAIL SENT RESPONSE:: ${verificationCode} `, res.response);
   // 	// return res.response
@@ -1244,7 +1196,7 @@ module.exports = async (code, userEmail, name, type) => {
   // axios({
   //   method: 'post',
   //   url: 'https://api.ng.termii.com/api/sms/otp/send',
-  //   data: JSON.stringify(data),
+  //   data: JSON.stringify(msg),
   //   headers: {
   //     'Content-Type': 'application/json',
   //   },

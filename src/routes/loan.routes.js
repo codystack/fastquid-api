@@ -10,6 +10,7 @@ module.exports = (app) => {
   router.post('/request', verifyCookie, loan.request)
   router.post('/check-eligibility', verifyCookie, loan.checkEligibility)
   router.get('/single', verifyCookie, loan.single)
+  router.get('/all', verifyCookie, loan.all)
 
   app.use('/api/loan', router)
 }

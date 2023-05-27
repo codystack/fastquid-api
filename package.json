@@ -4,7 +4,7 @@
   "description": "Fastquid is a digital lending company offering lending services to salary earners. The company is focused on providing quick funds to its customers, to enable them to take care of urgent financial needs.",
   "main": "index.js",
   "scripts": {
-    "start": "export NODE_ENV=production && node index.js",
+    "start": "export NODE_ENV=production && nodemon index.js",
     "dev": "export NODE_ENV=development && nodemon index.js",
     "format:check": "prettier --check .",
     "format:write": "prettier --write .",
@@ -64,7 +64,7 @@
     "nodemailer": "^6.9.2",
     "socket.io": "^4.5.1",
     "streamifier": "^0.1.1",
-    "termii": "^1.2.1",
+    "termii-js": "^0.0.1",
     "tld-extract": "^2.0.1",
     "validator": "^13.7.0"
   }

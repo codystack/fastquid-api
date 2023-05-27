@@ -54,7 +54,7 @@ module.exports = (mongoose) => {
       timestamps: true,
       versionKey: false,
       toJSON: { virtuals: true },
-    }
+    } 
   )
 
   schema.plugin(mongoosePaginate)

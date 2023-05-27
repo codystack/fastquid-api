@@ -11,6 +11,7 @@ const addMinuteToDate = require('../helpers/addMinuteToDate')
 const messages = require('../helpers/messages')
 const checkBusinessEmail = require('../utils/checkBusinessEmail')
 const sendSms = require('../helpers/sendSms')
+const sendEmail = require('../helpers/sendEmail')
 const User = db.users
 const Otp = db.otps
 const Notification = db.notifications
@@ -167,6 +168,8 @@ exports.login = async (req, res) => {
 
     const accessToken = generateAccessToken(user.emailAddress)
     const refreshToken = generateRefreshToken(user.emailAddress)
+
+    await sendEmail(1234)
 
     let response = {
       status: true,
@@ -351,13 +354,19 @@ exports.sendOtp = async (req, res) => {
 
     console.info('Sent OTP: ', otp)
     if (req.body?.companyEmailAddress) {
-      await sendSms(otp.otp, req.body.companyEmailAddress, user.firstName, "work")
+      await sendSms(
+        otp.otp,
+        req.body.companyEmailAddress,
+        user.firstName,
+        'work'
+      )
+      await sendEmail(otp.otp)
       res.send({
         status: true,
         message: `'OTP sent to ${req.body.companyEmailAddress}.`,
       })
     } else {
-      await sendSms(otp.otp, req.body.emailAddress, user.firstName, "personal")
+      await sendSms(otp.otp, req.body.emailAddress, user.firstName, 'personal')
 
       //send OTP HERE
 
@@ -511,6 +520,47 @@ exports.logout = async (req, res) => {
   } catch (error) {
     res.status(500).send({
       message: error.message || 'Some error occurred while logging out.',
+    })
+  }
+}
+
+exports.all = async (req, res) => {
+  try {
+    if (!req.decoded) {
+      //forbidden
+      customErr.message = 'You Are Forbidden!'
+      customErr.code = 403
+      throw customErr
+    }
+    let query
+    const { page = 1, range, limit = process.env.DEFAULT_LIMIT } = req.query
+
+    if (range === 'recent') {
+      query = {
+        createdAt: {
+          $gte: startOfDay(new Date()),
+          $lte: endOfDay(new Date()),
+        },
+      }
+    } else {
+      query = {}
+    }
+
+    const options = {
+      sort: { createdAt: -1 },
+      populate: population,
+      page,
+      limit,
+    }
+    const loans = await User.paginate(query, options)
+
+    res.send(loans)
+  } catch (error) {
+    res.status(500).send({
+      message:
+        error?.response?.data?.message ||
+        error?.message ||
+        'Some error occurred while fetching loan.',
     })
   }
 }

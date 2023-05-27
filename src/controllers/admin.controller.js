@@ -6,6 +6,8 @@ const {
 } = require('../helpers/auth.cookies')
 
 const db = require('../db')
+const PotentialAdmin = require('../models/potential_admin.model.js')
+const User = db.users
 const Admin = db.admins
 const tokenList = {}
 let customErr = new Error()
@@ -40,6 +42,14 @@ exports.create = async (req, res) => {
     // }
 
     const { emailAddress, password } = req.body
+
+    // const potentialAdmin = await PotentialAdmin.findOne({ id: emailAddress});
+
+    // if (!potentialAdmin) {
+    //   customErr.message = 'No way. You can\'t just signup here!'
+    //   customErr.code = 404
+    //   throw customErr
+    // }
 
     if (!emailAddress && !password) {
       customErr.message = 'provide all required fields'
@@ -272,7 +282,7 @@ exports.admins = async (req, res) => {
     const result = await Admin.find({
       _id: { $nin: [admin.id] },
     })
-      .populate(population)
+      // .populate(population)
       .sort({ createdAt: -1 })
 
     res.send(result)
@@ -382,6 +392,43 @@ exports.logout = async (req, res) => {
   } catch (error) {
     res.status(500).send({
       message: error?.message || 'Some error occurred while signing out data.',
+    })
+  }
+}
+
+// Update General User Account
+exports.updateUser = async (req, res) => {
+  try {
+    if (!req.decoded) {
+      //forbidden
+      customErr.message = 'You Are Forbidden!'
+      customErr.code = 403
+      throw customErr
+    }
+    let payload = req.body
+
+    // const user = await User.findOne({ emailAddress: req.body.emailAddress })
+
+    const updated = await User.findOneAndUpdate(
+      { emailAddress: req.body.emailAddress },
+      payload,
+      {
+        new: true,
+      }
+    )
+
+    if (!updated) {
+      customErr.message = `Cannot update User with this email (${req.body.emailAddress})!`
+      customErr.code = 404
+      throw customErr
+    }
+
+    res.send(updated)
+  } catch (error) {
+    console.log('error', error)
+    res.status(500).send({
+      message:
+        error?.message || 'Some error occurred while updating your profile.',
     })
   }
 }

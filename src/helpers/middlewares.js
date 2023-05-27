@@ -52,10 +52,10 @@ function verifyAdmin(req, res, next) {
   // verifies secret
   if (secret && secret === process.env.APP_SECRET) {
     next()
-  } else {
+  } else { 
     // return an error
     return res.status(403).send({
-      message: 'You are forbidden from this application.',
+      message: 'You are forbidden from this application!',
     })
   }
 }

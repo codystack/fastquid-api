@@ -1,12 +1,13 @@
 const mongoosePaginate = require('mongoose-paginate-v2')
+const mongoose =  require("mongoose");
 
-module.exports = (mongoose) => {
+module.exports = () => {
   const schema = mongoose.Schema(
     {
       user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-      },
+      }, 
       type: {
         type: String,
         enum: ['account', 'loan'],
@@ -50,6 +51,21 @@ module.exports = (mongoose) => {
     }
   )
 
+  // schema.plugin(mongoosePaginate)
+
+  // schema.method('toJSON', function () {
+  //   const { _id, ...object } = this.toObject()
+  //   object.id = _id
+  //   return object
+  // })
+
+  // schema.virtual('fullName').get(function () {
+  //   return this.firstName + ' ' + this.lastName
+  // })
+
+  // const User = mongoose.model('User', schema)
+
+
   schema.plugin(mongoosePaginate)
 
   schema.method('toJSON', function () {
@@ -58,7 +74,8 @@ module.exports = (mongoose) => {
     return object
   })
 
-  const Transaction = mongoose.model('Transaction', schema)
+  // const Transaction = mongoose.model('Transaction', schema)
+  // export default mongoose.model("Review", ReviewSchema);
 
-  return Transaction
+  return mongoose.model('Transaction', schema); //Transaction
 }

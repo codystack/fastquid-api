@@ -3,6 +3,8 @@ const paystack = require('../services/payment.gateway')
 const db = require('../db')
 const messages = require('../helpers/messages')
 const getPercentage = require('../utils/getPercentage')
+const ObjectId = require('mongoose')
+
 const Transaction = db.transactions
 const User = db.users
 const Loan = db.loans
@@ -171,6 +173,14 @@ exports.single = async (req, res) => {
       customErr.code = 400
       throw customErr
     }
+
+    console.log('TRANSACTION > ', user.id)
+
+    // const query = { user: new ObjectId(user.id) };
+    // const query = { user: { $eq: new ObjectId(user.id) } };
+    // const result = await Transaction.find(query).toArray();
+
+    // console.log('TRANSACTION DATA ', result)
 
     const transaction = await Transaction.find({ user: user.id })
       .populate(population)

@@ -7,6 +7,7 @@ module.exports = (app) => {
 
   // admin route
   router.post('/create', verifyCookie, support.create)
+  router.get('/all', verifyCookie, support.all)
 
   app.use('/api/support', router)
 }
