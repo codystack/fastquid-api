@@ -21,12 +21,13 @@ const io = require('socket.io')(http)
 //PLUGINS
 app.use(morgan('dev'))
 app.use(helmet())
-// app.use(cors())
-app.use(
-  cors({
-    origin: ['https://fastquid-admin.vercel.app', 'https://fastquid-dashboard.vercel.app', 'https://app.fastquid.ng', 'https://backoffice.fastquid.ng', 'http://192.168.1.103'],
-  })
-)
+app.use(cors())
+// app.use(
+//   cors({
+//     origin: ['https://fastquid-admin.vercel.app', 'https://fastquid-dashboard.vercel.app', 'https://app.fastquid.ng', 'https://backoffice.fastquid.ng', 'http://192.168.1.103'],
+//   })
+// )
+
 app.use(express.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(express.urlencoded({ extended: true }))
