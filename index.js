@@ -2,17 +2,16 @@
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` })
 const express = require('express')
 const cookieParser = require('cookie-parser')
-const bodyParser = require('body-parser');
+const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const helmet = require('helmet')
 const cors = require('cors')
 const db = require('./src/db')
 const changeSchemeHandler = require('./src/controllers/changeScheme.handler')
 const middleware = require('./src/helpers/middlewares')
-const fs = require('fs');
+const fs = require('fs')
 
 // const  authRoute = require("./app/routes/auth.routes.js");
-
 
 //DECLARE
 const app = express()
@@ -22,9 +21,14 @@ const io = require('socket.io')(http)
 //PLUGINS
 app.use(morgan('dev'))
 app.use(helmet())
-app.use(cors())
+// app.use(cors())
+app.use(
+  cors({
+    origin: ['https://fastquid-admin.vercel.app', 'https://fastquid-dashboard.vercel.app', 'https://app.fastquid.ng', 'https://backoffice.fastquid.ng', 'http://192.168.1.103'],
+  })
+)
 app.use(express.json())
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true }))
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 app.use(express.static('public'))
@@ -50,13 +54,11 @@ app.get('/', (req, res) => {
   })
 })
 
-
 /* backslash for windows, in unix it would be forward slash */
-// const routes_directory = require('path').resolve(__dirname) + '\\app\\'; 
+// const routes_directory = require('path').resolve(__dirname) + '\\app\\';
 
 // fs.readdirSync('./app/routes').map((file) => app.use("/api", require("./app/routes/"+file)));
- 
- 
+
 // app.use("/api", authRoute);
 // app.use('/api/auth', authRoute)
 
