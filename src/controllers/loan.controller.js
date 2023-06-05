@@ -16,6 +16,15 @@ const Setting = db.settings
 
 let customErr = new Error()
 
+const axiosInstance = axios.create({
+  baseURL: process.env.PAYSTACK_BASEURL,
+  timeout: 10000,
+  headers: {
+    Authorization: 'Bearer ' + process.env.PAYSTACK_SECRET_KEY,
+    'Content-Type': 'application/json',
+  },
+})
+
 const population = [
   {
     path: 'user',
@@ -29,9 +38,9 @@ const population2 = [
     path: 'user',
     select:
       'id status photoUrl firstName lastName phoneNumber emailAddress gender active bank',
-      populate: {
-        path: "bank"
-     }
+    populate: {
+      path: 'bank',
+    },
   },
 ]
 
@@ -537,10 +546,34 @@ exports.disburseLoan = async (req, res) => {
     //Create transfer recipient
     const params = JSON.stringify({
       type: 'nuban',
-      name: user.firstName + ' ' + user.middleName + ' ' + user.lastName,
-      account_number: '0001234567',
-      bank_code: '058',
+      name: loan?.user?.fullName,
+      account_number: loan?.user?.bank?.accountNumber,
+      bank_code: loan?.user?.bank?.bankCode,
       currency: 'NGN',
     })
-  } catch (error) {}
+
+    // Send a POST request
+    // axiosInstance({
+    //   method: 'post',
+    //   url: '/user/12345',
+    //   data: {
+    //     firstName: 'Fred',
+    //     lastName: 'Flintstone',
+    //   },
+    // })
+
+    axiosInstance
+      .post('/transferrecipient', params)
+      .then(function (response) {
+        return res.status(200).json({ message: 'Success', data: response })
+        console.log('PAYSTACK TRANS RECIPIENT RESPO ==>> ', response)
+      })
+      .catch(function (error) {
+        console.log('TRANS RECEIPIENT ERROR', error)
+        return res.status(500).json({ message: 'Failed', data: error })
+      })
+  } catch (error) {
+    console.log('TRANS RECEIPIENT ERROR OUTER', error)
+    return res.status(500).json({ message: 'Failed Outer', data: error })
+  }
 }
