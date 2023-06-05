@@ -28,7 +28,7 @@ const population2 = [
   {
     path: 'user',
     select:
-      'id status photoUrl firstName lastName phoneNumber emailAddress gender active ',
+      'id status photoUrl firstName lastName phoneNumber emailAddress gender active bank',
       populate: {
         path: "bank"
      }
@@ -325,7 +325,7 @@ exports.all = async (req, res) => {
       page,
       limit,
     }
-    
+
     const loans = await Loan.paginate(query, options)
 
     res.send(loans)
