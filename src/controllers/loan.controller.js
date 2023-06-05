@@ -3,6 +3,7 @@ const { startOfDay, endOfDay } = require('date-fns')
 const db = require('../db')
 const messages = require('../helpers/messages')
 const getPercentage = require('../utils/getPercentage')
+const axios = require('axios')
 const Admin = db.admins
 const User = db.users
 const Loan = db.loans
@@ -19,7 +20,18 @@ const population = [
   {
     path: 'user',
     select:
-      'id status photoUrl firstName lastName phoneNumber emailAddress gender active',
+      'id status photoUrl firstName lastName phoneNumber emailAddress gender active ',
+  },
+]
+
+const population2 = [
+  {
+    path: 'user',
+    select:
+      'id status photoUrl firstName lastName phoneNumber emailAddress gender active ',
+      populate: {
+        path: "bank"
+     }
   },
 ]
 
@@ -89,20 +101,20 @@ exports.create = async (req, res) => {
       { amountIssued: req.body.amountBorrowed }
     )
 
-    console.log("Loan Create PAYLOAD >> ", payload);
+    console.log('Loan Create PAYLOAD >> ', payload)
     //Also save to transaction here
     await new Transaction({
       user: user.id,
-      type: "loan",
-      domain: "",
-      status: "pending",
-      reference: "ref",
+      type: 'loan',
+      domain: '',
+      status: 'pending',
+      reference: 'ref',
       amount: payload.amountBorrowed,
       message: 'Debt consolidation',
       gateway_response: 'Debt consolidation',
-      channel: "loan",
-      currency: "NGN",
-      ip_address: "",
+      channel: 'loan',
+      currency: 'NGN',
+      ip_address: '',
     }).save()
 
     const currentLoan = await Loan.findOne({ _id: loan._id }).populate(
@@ -309,10 +321,11 @@ exports.all = async (req, res) => {
 
     const options = {
       sort: { createdAt: -1 },
-      populate: population,
+      populate: population2,
       page,
       limit,
     }
+    
     const loans = await Loan.paginate(query, options)
 
     res.send(loans)
@@ -335,7 +348,7 @@ exports.update = async (req, res) => {
       throw customErr
     }
 
-    console.log("CHECK1");
+    console.log('CHECK1')
     //Check admin here
     const admin = await Admin.findOne({ emailAddress: req.decoded.userId })
 
@@ -345,7 +358,7 @@ exports.update = async (req, res) => {
       throw customErr
     }
 
-    console.log("CHECK2");
+    console.log('CHECK2')
 
     if (
       admin.privilege.role !== 'developer' &&
@@ -357,7 +370,7 @@ exports.update = async (req, res) => {
       throw customErr
     }
 
-    console.log("CHECK3");
+    console.log('CHECK3')
 
     const { action } = req.query
     const { user } = req.body
@@ -371,7 +384,7 @@ exports.update = async (req, res) => {
       throw customErr
     }
 
-    console.log("CHECK4");
+    console.log('CHECK4')
 
     let amount = userAccount.loan.amountBorrowed
     if (action === 'grant-loan') {
@@ -510,4 +523,24 @@ exports.checkEligibility = async (req, res) => {
         'Some error occurred while fetching loan.',
     })
   }
+}
+
+exports.disburseLoan = async (req, res) => {
+  try {
+    const { loan, userId } = req.body
+
+    const user = User.findOne({ _id: userId })
+
+    if (!user) {
+      return res.status(404).json({ message: 'User is not found' })
+    }
+    //Create transfer recipient
+    const params = JSON.stringify({
+      type: 'nuban',
+      name: user.firstName + ' ' + user.middleName + ' ' + user.lastName,
+      account_number: '0001234567',
+      bank_code: '058',
+      currency: 'NGN',
+    })
+  } catch (error) {}
 }
