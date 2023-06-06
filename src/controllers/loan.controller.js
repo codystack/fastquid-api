@@ -242,8 +242,8 @@ exports.request = async (req, res) => {
       duration: req.body.duration,
       amount: req.body.amount,
       reason: req.body.reason,
-      salary: '',
-      company: ''
+      salary: req.body.salary,
+      company: req.body.company
     }).save()
 
     await new Notification({
