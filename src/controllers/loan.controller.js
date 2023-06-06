@@ -128,7 +128,7 @@ exports.create = async (req, res) => {
         'Some error occurred while creating loan.',
     })
   }
-}
+} 
 
 exports.request = async (req, res) => {
   try {
@@ -242,8 +242,6 @@ exports.request = async (req, res) => {
       duration: req.body.duration,
       amount: req.body.amount,
       reason: req.body.reason,
-      salary: req.body.salary,
-      company: req.body.company
     }).save()
 
     await new Notification({

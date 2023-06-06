@@ -22,14 +22,6 @@ module.exports = (mongoose) => {
         type: String,
         required: [true, 'Duration is required'],
       },
-      salary: {
-        type: Number,
-        required: [true, 'Salary is required'],
-      },
-      company: {
-        type: String,
-        required: [true, 'Company name is required'],
-      },
       amount: {
         type: Number,
         required: [true, 'Amount is required'],
