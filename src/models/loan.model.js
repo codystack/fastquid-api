@@ -46,8 +46,16 @@ module.exports = (mongoose) => {
         default: 0,
         required: [true, 'Total Amount Due is required'],
       },
+      salary: {
+        type: Number,
+        required: [true, 'Salary is required'],
+      },
+      company: {
+        type: String,
+        required: [true, 'Company name is required'],
+      },
       dueDate: {
-        type: Date,
+        type: Date, 
       },
     },
     {
