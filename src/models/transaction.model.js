@@ -44,6 +44,9 @@ module.exports = () => {
       ip_address: {
         type: String,
       },
+      transfer_code: {
+        type: String,
+      },
     },
     {
       timestamps: true,

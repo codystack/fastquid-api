@@ -4,6 +4,7 @@ const db = require('../db')
 const messages = require('../helpers/messages')
 const getPercentage = require('../utils/getPercentage')
 const axios = require('axios')
+const { v4 } = require('uuid')
 const Admin = db.admins
 const User = db.users
 const Loan = db.loans
@@ -29,7 +30,7 @@ const population = [
   {
     path: 'user',
     select:
-      'id status photoUrl firstName lastName phoneNumber emailAddress gender active ',
+      'id status photoUrl firstName lastName phoneNumber emailAddress gender active accountStatus',
   },
 ]
 
@@ -37,7 +38,7 @@ const population2 = [
   {
     path: 'user',
     select:
-      'id status photoUrl firstName lastName phoneNumber emailAddress gender active bank',
+      'id status photoUrl firstName lastName phoneNumber emailAddress gender active bank accountStatus',
     populate: {
       path: 'bank',
     },
@@ -112,19 +113,6 @@ exports.create = async (req, res) => {
 
     console.log('Loan Create PAYLOAD >> ', payload)
     //Also save to transaction here
-    await new Transaction({
-      user: user.id,
-      type: 'loan',
-      domain: '',
-      status: 'pending',
-      reference: 'ref',
-      amount: payload.amountBorrowed,
-      message: 'Debt consolidation',
-      gateway_response: 'Debt consolidation',
-      channel: 'loan',
-      currency: 'NGN',
-      ip_address: '',
-    }).save()
 
     const currentLoan = await Loan.findOne({ _id: loan._id }).populate(
       population
@@ -254,6 +242,8 @@ exports.request = async (req, res) => {
       duration: req.body.duration,
       amount: req.body.amount,
       reason: req.body.reason,
+      salary: '',
+      company: ''
     }).save()
 
     await new Notification({
@@ -544,29 +534,75 @@ exports.disburseLoan = async (req, res) => {
       return res.status(404).json({ message: 'User is not found' })
     }
     //Create transfer recipient
-    const params = JSON.stringify({
+    const params = {
       type: 'nuban',
       name: loan?.user?.fullName,
       account_number: loan?.user?.bank?.accountNumber,
       bank_code: loan?.user?.bank?.bankCode,
       currency: 'NGN',
-    })
-
-    // Send a POST request
-    // axiosInstance({
-    //   method: 'post',
-    //   url: '/user/12345',
-    //   data: {
-    //     firstName: 'Fred',
-    //     lastName: 'Flintstone',
-    //   },
-    // })
+    }
 
     axiosInstance
-      .post('/transferrecipient', params)
+      .post('/transferrecipient', params, {})
       .then(function (response) {
-        return res.status(200).json({ message: 'Success', data: response })
-        console.log('PAYSTACK TRANS RECIPIENT RESPO ==>> ', response)
+        // return res.status(200).json({ message: `${response?.data?.message}`, data: response?.data })
+
+        //receipient code from response (response.data?.data?.recipient_code)  = RCP_vqakn8j8lvfrgfm
+
+        // Now make another trip (Generate a transfer reference)
+        const params2 = {
+          source: 'balance',
+          amount: loan?.amountBorrowed * 100,
+          reference: loan?.user?._id + '_' + v4(),
+          recipient: response.data?.data?.recipient_code,
+          reason:
+            'Loan disbursement to ' + loan?.user?.fullName + "'s bank account",
+        }
+
+        axiosInstance
+          .post('/transfer', params2, {})
+          .then(async (resl) => {
+            console.log('FINAL TRANSFER ', resl)
+            //Create transasction here
+            try {
+              const transact = await new Transaction({
+                user: loan?.user?._id,
+                type: 'loan',
+                domain: resl?.data?.data?.domain,
+                status: 'success',
+                reference: resl?.data?.data?.reference,
+                amount: resl?.data?.data?.amount,
+                message: resl?.data?.data?.reason,
+                gateway_response: resl?.data?.message,
+                channel: 'loan',
+                currency: resl?.data?.data?.currency,
+                ip_address: '',
+                transfer_code: resl?.data?.data?.transfer_code,
+              }).save()
+
+              //Now update loan
+              // await Loan.fin({_id: loan?._id})
+              await Loan.findByIdAndUpdate(
+                loan?.id,
+                {
+                  $set: { status: 'credited' },
+                },
+                { new: true }
+              )
+
+              res.status(200).json({
+                message:
+                  'You have successfully credited ' + loan?.user?.fullName,
+              })
+            } catch (error) {
+              console.log('TRANS ERROR', error)
+              return res.status(500).json({ message: 'Failed', data: error })
+            }
+          })
+          .catch(function (err) {
+            console.log('TRANSFER ERROR', err)
+            return res.status(500).json({ message: 'Failed', data: err })
+          })
       })
       .catch(function (error) {
         console.log('TRANS RECEIPIENT ERROR', error)

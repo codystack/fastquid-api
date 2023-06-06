@@ -28,7 +28,7 @@ const createTransaction = async (user, response, type, message, status) => {
     domain: response?.data.data?.domain,
     status,
     reference: response?.data.data?.reference,
-    amount: response?.data.data?.amount,
+    amount: response?.data.data?.amount/100,
     message,
     gateway_response: response?.data.data?.gateway_response,
     channel: response?.data.data?.channel,

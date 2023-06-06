@@ -15,7 +15,7 @@ module.exports = (mongoose) => {
       },
       paydayLoanAmountPercentage: {
         type: Number,
-        default: 80,
+        default: 50,
       },
       paydayLoanInterest: {
         type: mongoose.Schema.Types.Decimal128,
