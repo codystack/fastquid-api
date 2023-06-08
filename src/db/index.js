@@ -23,5 +23,6 @@ db.notifications = require('../models/notification.model')(mongoose)
 db.contacts = require('../models/contact.model')(mongoose)
 db.content = require('../models/content.model')(mongoose)
 db.settings = require('../models/setting.model')(mongoose)
+db.companys = require('../models/company.model')(mongoose)
 
 module.exports = db

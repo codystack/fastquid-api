@@ -85,6 +85,7 @@ require('./src/routes/transaction.routes')(app)
 require('./src/routes/media.routes')(app)
 require('./src/routes/support.routes')(app)
 require('./src/routes/notification.routes')(app)
+require('./src/routes/company.routes')(app)
 // Not for production
 // require('./app/routes/sms.routes')(app)
 

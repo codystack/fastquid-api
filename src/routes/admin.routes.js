@@ -35,6 +35,8 @@ module.exports = (app) => {
   router.get('/transaction/all', [verifyCookie, verifyAdmin], transaction.all)
   router.get('/users/all', [verifyCookie, verifyAdmin], auth.all)
   router.post('/setting/create', setting.create)
+  router.get('/setting/all', setting.load)
+  router.patch('/setting/update/:id', setting.update)
 
   app.use('/api/admin', router)
 }

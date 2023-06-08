@@ -345,7 +345,6 @@ exports.update = async (req, res) => {
       throw customErr
     }
 
-    console.log('CHECK1')
     //Check admin here
     const admin = await Admin.findOne({ emailAddress: req.decoded.userId })
 
@@ -355,7 +354,6 @@ exports.update = async (req, res) => {
       throw customErr
     }
 
-    console.log('CHECK2')
 
     if (
       admin.privilege.role !== 'developer' &&
@@ -367,7 +365,6 @@ exports.update = async (req, res) => {
       throw customErr
     }
 
-    console.log('CHECK3')
 
     const { action } = req.query
     const { user } = req.body
@@ -381,7 +378,6 @@ exports.update = async (req, res) => {
       throw customErr
     }
 
-    console.log('CHECK4')
 
     let amount = userAccount.loan.amountBorrowed
     if (action === 'grant-loan') {
