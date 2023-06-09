@@ -57,6 +57,9 @@ module.exports = (mongoose) => {
       dueDate: {
         type: Date, 
       },
+      disbursedOn: {
+        type: Date, 
+      },
     },
     {
       timestamps: true,

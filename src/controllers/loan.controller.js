@@ -579,7 +579,7 @@ exports.disburseLoan = async (req, res) => {
               await Loan.findByIdAndUpdate(
                 loan?.id,
                 {
-                  $set: { status: 'credited' },
+                  $set: { status: 'credited', disbursedOn: new Date().toISOString() },
                 },
                 { new: true }
               )
