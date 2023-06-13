@@ -4,7 +4,7 @@ const db = require('../db')
 const messages = require('../helpers/messages')
 const getPercentage = require('../utils/getPercentage')
 const axios = require('axios')
-const { v4 } = require('uuid')
+// const { v4 } = require('uuid')
 const Admin = db.admins
 const User = db.users
 const Loan = db.loans
@@ -38,9 +38,10 @@ const population2 = [
   {
     path: 'user',
     select:
-      'id status photoUrl firstName lastName phoneNumber emailAddress gender active bank accountStatus',
+      'id status photoUrl firstName lastName phoneNumber emailAddress gender active bank accountStatus debitCard',
     populate: {
       path: 'bank',
+      path: 'debitCard'
     },
   },
 ]
@@ -89,7 +90,7 @@ exports.create = async (req, res) => {
 
     if (activeLoan) {
       // check if activeloan is settled
-      if (activeLoan.status !== 'settled') {
+      if (activeLoan.status !== 'settled' && activeLoan.status !== 'denied') {
         customErr.message =
           'Kindly repay your active loan before you can request another'
         customErr.code = 400
@@ -105,11 +106,13 @@ exports.create = async (req, res) => {
       user.loan = loan._id
       user.markModified('loan')
       user.save()
+
+      await LoanRequest.findOneAndUpdate(
+        { user: user.id },
+        { amountIssued: req.body.amountBorrowed },
+        { loanId: loan._id }
+      )
     }
-    const lreq = await LoanRequest.findOneAndUpdate(
-      { user: user.id },
-      { amountIssued: req.body.amountBorrowed }
-    )
 
     console.log('Loan Create PAYLOAD >> ', payload)
     //Also save to transaction here
@@ -128,7 +131,7 @@ exports.create = async (req, res) => {
         'Some error occurred while creating loan.',
     })
   }
-} 
+}
 
 exports.request = async (req, res) => {
   try {
@@ -229,7 +232,10 @@ exports.request = async (req, res) => {
     const currentLoanRequest = await Loan.findOne({ user: user.id })
 
     if (currentLoanRequest) {
-      if (currentLoanRequest?.status !== 'settled') {
+      if (
+        currentLoanRequest?.status !== 'settled' &&
+        currentLoanRequest?.status !== 'denied'
+      ) {
         customErr.message = `You have an active loan that's not settled yet!`
         customErr.code = 403
         throw customErr
@@ -246,6 +252,7 @@ exports.request = async (req, res) => {
 
     await new Notification({
       ...messages().loanRequest,
+      title: 'New loan request',
       user: user.id,
       userRefType: 'User',
     }).save()
@@ -336,6 +343,48 @@ exports.all = async (req, res) => {
   }
 }
 
+exports.allReq = async (req, res) => {
+  try {
+    if (!req.decoded) {
+      //forbidden
+      customErr.message = 'You Are Forbidden!'
+      customErr.code = 403
+      throw customErr
+    }
+    let query
+    const { page = 1, range, limit = process.env.DEFAULT_LIMIT } = req.query
+
+    if (range === 'recent') {
+      query = {
+        createdAt: {
+          $gte: startOfDay(new Date()),
+          $lte: endOfDay(new Date()),
+        },
+      }
+    } else {
+      query = {}
+    }
+
+    const options = {
+      sort: { updatedAt: -1 },
+      populate: population,
+      page,
+      limit,
+    }
+
+    const requests = await LoanRequest.paginate(query, options)
+
+    res.send(requests)
+  } catch (error) {
+    res.status(500).send({
+      message:
+        error?.response?.data?.message ||
+        error?.message ||
+        'Some error occurred while fetching loan requests.',
+    })
+  }
+}
+
 exports.update = async (req, res) => {
   try {
     if (!req.decoded) {
@@ -354,7 +403,6 @@ exports.update = async (req, res) => {
       throw customErr
     }
 
-
     if (
       admin.privilege.role !== 'developer' &&
       admin.privilege.role !== 'manager'
@@ -364,7 +412,6 @@ exports.update = async (req, res) => {
       customErr.code = 403
       throw customErr
     }
-
 
     const { action } = req.query
     const { user } = req.body
@@ -377,7 +424,6 @@ exports.update = async (req, res) => {
       customErr.code = 400
       throw customErr
     }
-
 
     let amount = userAccount.loan.amountBorrowed
     if (action === 'grant-loan') {
@@ -547,7 +593,7 @@ exports.disburseLoan = async (req, res) => {
         const params2 = {
           source: 'balance',
           amount: loan?.amountBorrowed * 100,
-          reference: loan?.user?._id + '_' + v4(),
+          reference: 'CREDIT' + '_' + new Date().getTime().toString(),
           recipient: response.data?.data?.recipient_code,
           reason:
             'Loan disbursement to ' + loan?.user?.fullName + "'s bank account",
@@ -565,7 +611,7 @@ exports.disburseLoan = async (req, res) => {
                 domain: resl?.data?.data?.domain,
                 status: 'success',
                 reference: resl?.data?.data?.reference,
-                amount: resl?.data?.data?.amount,
+                amount: resl?.data?.data?.amount / 100,
                 message: resl?.data?.data?.reason,
                 gateway_response: resl?.data?.message,
                 channel: 'loan',
@@ -579,7 +625,10 @@ exports.disburseLoan = async (req, res) => {
               await Loan.findByIdAndUpdate(
                 loan?.id,
                 {
-                  $set: { status: 'credited', disbursedOn: new Date().toISOString() },
+                  $set: {
+                    status: 'credited',
+                    disbursedOn: new Date().toISOString(),
+                  },
                 },
                 { new: true }
               )
@@ -607,3 +656,5 @@ exports.disburseLoan = async (req, res) => {
     return res.status(500).json({ message: 'Failed Outer', data: error })
   }
 }
+
+

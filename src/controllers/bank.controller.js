@@ -2,13 +2,14 @@ const db = require('../db')
 const paystack = require('../services/payment.gateway')
 const Bank = db.banks
 const User = db.users
+const DebitCard = db.debitCards
 let customErr = new Error()
 
 const population = [
   {
     path: 'user',
     select:
-      'id status passport firstName lastName phoneNumber emailAddress gender active',
+      'id status passport firstName lastName fullName phoneNumber emailAddress gender active',
   },
 ]
 
@@ -139,6 +140,27 @@ exports.banks = async (req, res) => {
       .sort({ createdAt: -1 })
 
     res.send(banks)
+  } catch (error) {
+    res.status(500).send({
+      message:
+        error?.message || 'Some error occurred while fetching an banks!.',
+    })
+  }
+}
+
+exports.cards = async (req, res) => {
+  try {
+    // if (!req.decoded) {
+    //   //forbidden
+    //   customErr.message = 'You Are Forbidden!'
+    //   customErr.code = 403
+    //   throw customErr
+    // }
+    const debitCards = await DebitCard.find({})
+      .populate(population)
+      .sort({ createdAt: -1 })
+
+    res.send(debitCards)
   } catch (error) {
     res.status(500).send({
       message:

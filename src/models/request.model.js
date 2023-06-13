@@ -12,6 +12,7 @@ module.exports = (mongoose) => {
         enum: ['personal loan', 'pay day loan', 'buy now pay later'],
         required: [true, 'RequestType is required'],
       },
+      loanId: String,
       status: {
         type: String,
         enum: ['pending', 'approved', 'denied', 'settled', 'credited'],
@@ -36,6 +37,7 @@ module.exports = (mongoose) => {
       paymentDate: {
         type: Date,
       },
+
     },
     {
       timestamps: true,

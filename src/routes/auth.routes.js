@@ -5,8 +5,10 @@ var router = require('express').Router()
 module.exports = (app) => {
   // auth route
   router.post('/create', auth.create)
-  router.post('/login', auth.login) 
+  router.post('/login', auth.login)
   router.post('/token', auth.token)
+  router.post('/addUser', auth.addUser)
+  router.patch('/complete', verifyCookie, auth.completeCreate)
 
   router.get('/profile', verifyCookie, auth.profile)
   router.patch('/update', verifyCookie, auth.update)

@@ -10,6 +10,7 @@ module.exports = (app) => {
   router.post('/resolve', verifyCookie, bank.resolve)
   router.get('/all', [verifyAdmin, verifyCookie], bank.banks)
   router.get('/list', bank.listBanks)
+  router.get('/debitCards', bank.cards)
 
   app.use('/api/bank', router)
 }

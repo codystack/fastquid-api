@@ -24,7 +24,7 @@ module.exports = (mongoose) => {
         },
         claim: {
           type: String,
-          enum: ['readonly', 'read/write'],
+          enum: ['readonly', 'read/write', 'approve', 'disburse'],
           trim: true,
           lowercase: true,
           default: 'readonly',

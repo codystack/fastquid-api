@@ -27,6 +27,10 @@ module.exports = (mongoose) => {
         name: String,
         phone: String,
       },
+      accountManager: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Admin',
+      },
       website: {
         type: String,
       },

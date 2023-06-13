@@ -11,6 +11,7 @@ module.exports = (app) => {
   router.post('/check-eligibility', verifyCookie, loan.checkEligibility)
   router.get('/single', verifyCookie, loan.single)
   router.get('/all', verifyCookie, loan.all)
+  router.get('/request/all', verifyCookie, loan.allReq)
   router.post('/disburse', verifyCookie, loan.disburseLoan)
 
 

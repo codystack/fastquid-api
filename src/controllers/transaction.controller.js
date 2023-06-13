@@ -222,7 +222,7 @@ exports.all = async (req, res) => {
     }
 
     const options = {
-      sort: { createdAt: -1 },
+      sort: { updatedAt: -1 },
       populate: population,
       page,
       limit,

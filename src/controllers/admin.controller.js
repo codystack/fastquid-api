@@ -141,10 +141,14 @@ exports.login = async (req, res) => {
       const accessToken = generateAccessToken(admin.emailAddress)
       const refreshToken = generateRefreshToken(admin.emailAddress)
 
+
+      const { password, ...rest } = Object.assign({}, admin.toJSON());
+
       const response = {
         status: true,
         accessToken,
         refreshToken,
+        data: rest
       }
       tokenList[refreshToken] = response
       res.status(200).send(response)
@@ -432,3 +436,4 @@ exports.updateUser = async (req, res) => {
     })
   }
 }
+

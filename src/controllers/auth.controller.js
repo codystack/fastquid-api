@@ -11,7 +11,7 @@ const addMinuteToDate = require('../helpers/addMinuteToDate')
 const messages = require('../helpers/messages')
 const checkBusinessEmail = require('../utils/checkBusinessEmail')
 const sendSms = require('../helpers/sendSms')
-const sendEmail = require('../helpers/sendEmail')
+const { sendUserEmailLink, sendMail } = require('../helpers/sendEmail')
 const User = db.users
 const Otp = db.otps
 const Notification = db.notifications
@@ -176,6 +176,7 @@ exports.login = async (req, res) => {
       message: 'Login success',
       accessToken,
       refreshToken,
+      user,
     }
 
     if (device) {
@@ -564,4 +565,186 @@ exports.all = async (req, res) => {
     })
   }
 }
- 
+
+exports.addUser = async (req, res) => {
+  // Object.values()
+  let { body: bd } = req
+  // console.log('CHECKING :: ', Object.values(bd).length)
+
+  try {
+    if (!Object.values(bd)?.length) {
+      customErr.message = 'Body Or Params can not be empty!'
+      customErr.code = 400
+      throw customErr
+    }
+    const userId = req.body.emailAddress
+    // const hash = await hashPassword(req.body.password)
+
+    const genderAvatar =
+      req.body.gender === 'male'
+        ? process.env.AVATAR_MALE
+        : process.env.AVATAR_FEMALE
+
+    const payload = {
+      ...req.body,
+      photoUrl: genderAvatar,
+    }
+
+    // CREATE USER
+    const user = await new User(payload).save()
+
+    // send Email Link HERE
+    await sendUserEmailLink(payload)
+      .then((re) =>
+        console.log('SUCCESS::: >> ', `${re.response} - ${re.data}`)
+      )
+      .catch((err) => console.log('ERROR :: >>> ', err))
+
+    const response = {
+      status: true,
+      message: 'User Account Added Successfully.',
+    }
+
+    res.send(response)
+  } catch (error) {
+    let errors = {}
+    let message = error?.message
+    let errorCode
+
+    console.log('ERROR ', errors)
+
+    if (!error.code === 11000) {
+      errorCode = 500
+    } else {
+      errorCode = error.code
+    }
+
+    if (error.code === 11000) {
+      message = `An account has already been created with this ${
+        Object.values(error?.keyValue)[0]
+      } ${Object.keys(error?.keyValue)[0]}`
+    } else {
+      if (error?.errors) {
+        Object.keys(error.errors).forEach((key) => {
+          errors[key] = error.errors[key].message
+        })
+      }
+    }
+
+    res.status(500).json(
+      message
+        ? {
+            message: message || 'Some error occurred while creating the user.',
+          }
+        : errors
+    )
+  }
+}
+
+module.exports.completeCreate = async (req, res) => {
+  // Object.values()
+  let { body: bd } = req
+  // console.log('CHECKING :: ', Object.values(bd).length)
+
+  try {
+    if (!Object.values(bd)?.length) {
+      customErr.message = 'Body Or Params can not be empty!'
+      customErr.code = 400
+      throw customErr
+    }
+    const userId = req.body.emailAddress
+    const hash = await hashPassword(req.body.password)
+
+    const genderAvatar =
+      req.body.gender === 'male'
+        ? process.env.AVATAR_MALE
+        : process.env.AVATAR_FEMALE
+
+    const payload = {
+      ...req.body,
+      password: hash,
+      photoUrl: genderAvatar,
+    }
+
+    // UPDATE USER
+    const updated = await User.findOneAndUpdate(
+      { emailAddress: req.body?.emailAddress },
+      payload,
+      {
+        new: true,
+      }
+    )
+
+    if (!updated) {
+      customErr.message = `Cannot update user with this email (${req.body?.emailAddress})!`
+      customErr.code = 404
+      throw customErr
+    }
+
+    const accessToken = generateAccessToken(userId)
+    const refreshToken = generateRefreshToken(userId)
+
+    const generatedOtp = authGenerateOTP()
+    const now = new Date()
+    const expiration_time = addMinuteToDate(now, 10)
+
+    const otp = await new Otp({
+      user: req.body.id,
+      otp: parseInt(generatedOtp),
+      expiration_time,
+    }).save()
+
+    console.log('>>> LAES', otp)
+
+    // send OTP HERE
+    await sendSms(otp.otp, req.body.emailAddress)
+      .then((re) =>
+        console.log('SUCCESS::: >> ', `${re.response} - ${re.data}`)
+      )
+      .catch((err) => console.log('ERROR :: >>> ', err))
+
+    console.log('OTP ->', otp)
+
+    const response = {
+      status: true,
+      message: 'Account Creation Completed Successfully.',
+      accessToken,
+      refreshToken,
+    }
+
+    tokenList[refreshToken] = response
+    res.send(response)
+  } catch (error) {
+    let errors = {}
+    let message = error?.message
+    let errorCode
+
+    console.log('ERROR ', errors)
+
+    if (!error.code === 11000) {
+      errorCode = 500
+    } else {
+      errorCode = error.code
+    }
+
+    if (error.code === 11000) {
+      message = `An account has already been created with this ${
+        Object.values(error?.keyValue)[0]
+      } ${Object.keys(error?.keyValue)[0]}`
+    } else {
+      if (error?.errors) {
+        Object.keys(error.errors).forEach((key) => {
+          errors[key] = error.errors[key].message
+        })
+      }
+    }
+
+    res.status(500).json(
+      message
+        ? {
+            message: message || 'Some error occurred while creating the User.',
+          }
+        : errors
+    )
+  }
+}

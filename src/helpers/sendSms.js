@@ -2,74 +2,13 @@ const { default: axios } = require('axios')
 const nodemailer = require('nodemailer')
 const verifyemailTemp = require('../templates/verifyemail')
 
-// axios();
-
-// const Termii = require('termii');
-// const termiiInstance = Termii();
-// var request = require('request')
-
-// const Version = process.env.FB_VERSION
-// const PhoneNumberId = process.env.FB_PHONE_NUMBER_ID
-// const AuthToken = process.env.FB_AUTH_TOKEN
-
-// module.exports = (code, phone) => {
-//   const endpoint = `https://graph.facebook.com/${Version}/${PhoneNumberId}/messages`
-//   const data = {
-//     messaging_product: 'whatsapp',
-//     to: phone,
-//     type: 'template',
-//     template: {
-//       name: 'verify_otp',
-//       language: {
-//         code: 'en',
-//       },
-//       components: [
-//         {
-//           type: 'body',
-//           parameters: [
-//             {
-//               type: 'text',
-//               text: code,
-//             },
-//             {
-//               type: 'text',
-//               text: 'FastQuid',
-//             },
-//           ],
-//         },
-//       ],
-//     },
-//   }
-
-//   return axios.post(endpoint, data, {
-//     headers: {
-//       Authorization: `Bearer ${AuthToken}`,
-//     },
-//   })
-// }
-
-// const instance = axios.create({
-//   baseURL: 'https://some-domain.com/api/',
-//   timeout: 1000,
-//   headers: { 'X-Custom-Header': 'foobar' },
-// })
-
-// const API_KEY = process.env.TERMII_API_KEY
-
-// termiiInstance.setApi(process.env.TERMII_API_KEY)
-//Send SMS
-// termiiInstance.send_sms('234THE_TARGET_NUMBER','Your message','SENDER_ID').
-
-// const instance = axios.create({
-//   headers: {'X-Custom-Header': 'foobar'}
-// });
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
   port: 465,
   auth: {
-    user: 'info.prohelpng@gmail.com', //process.env.MAILER_ID, //"info.prohelpng@gmail.com",
-    pass: 'anwabldujrrjfcbi', //process.env.MAILER_PASS, ///,
+    user: process.env.MAILER_ID, //process.env.MAILER_ID, //"info.prohelpng@gmail.com"  'info.prohelpng@gmail.com',
+    pass: process.env.MAILER_PASS //'anwabldujrrjfcbi', //process.env.MAILER_PASS, ///,
   },
 })
 
@@ -1180,32 +1119,6 @@ module.exports = async (code, userEmail, name, type) => {
   `,
   }
 
-  // Send the email message
-  //   const info = await transporter.sendMail(msg);
-  //   console.log(`Email sent: ${info.messageId}`);
   return transporter.sendMail(msg);
-  // .then((res) => {
-  // console.log(`EMAIL SENT RESPONSE:: ${verificationCode} `, res.response);
-  // 	// return res.response
-  // 	// 	.status(200)
-  // 	// 	.send({ success: true, message: "Email sent successfully" });
-  // })
-  // .catch((error) => console.log("error: ", error));
 
-  // return instance.post('/sms/otp/send', JSON.stringify(data))
-  // axios({
-  //   method: 'post',
-  //   url: 'https://api.ng.termii.com/api/sms/otp/send',
-  //   data: JSON.stringify(msg),
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //   },
-  // })
-
-  // return await axios.post('https://api.ng.termii.com/api/sms/otp/send', data, {
-  //   // headers: {
-  //   //   // Authorization: `Bearer ${AuthToken}`,
-  //   //   // Content-Type: 'application/json',
-  //   // },
-  // })
 }
