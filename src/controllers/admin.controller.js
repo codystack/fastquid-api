@@ -10,7 +10,7 @@ const PotentialAdmin = require('../models/potential_admin.model.js')
 const User = db.users
 const Admin = db.admins
 const tokenList = {}
-let customErr = new Error()
+let customErr = new Error() 
 
 // Create admin
 exports.create = async (req, res) => {
@@ -436,4 +436,3 @@ exports.updateUser = async (req, res) => {
     })
   }
 }
-
