@@ -11,7 +11,7 @@ const addMinuteToDate = require('../helpers/addMinuteToDate')
 const messages = require('../helpers/messages')
 const checkBusinessEmail = require('../utils/checkBusinessEmail')
 const sendSms = require('../helpers/sendSms')
-const { sendUserEmailLink, sendMail } = require('../helpers/sendEmail')
+const { sendUserEmailLink } = require('../helpers/sendEmail')
 const User = db.users
 const Otp = db.otps
 const Notification = db.notifications
@@ -168,8 +168,6 @@ exports.login = async (req, res) => {
 
     const accessToken = generateAccessToken(user.emailAddress)
     const refreshToken = generateRefreshToken(user.emailAddress)
-
-    await sendEmail(1234)
 
     let response = {
       status: true,
