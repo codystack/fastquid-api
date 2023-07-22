@@ -567,7 +567,6 @@ exports.all = async (req, res) => {
 exports.addUser = async (req, res) => {
   // Object.values()
   let { body: bd } = req
-  // console.log('CHECKING :: ', Object.values(bd).length)
 
   try {
     if (!Object.values(bd)?.length) {
